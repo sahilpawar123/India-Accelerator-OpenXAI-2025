@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans"; // Corrected import
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import ParticlesBackground from "./components/ParticlesBackground";
 import { Toaster } from "react-hot-toast";

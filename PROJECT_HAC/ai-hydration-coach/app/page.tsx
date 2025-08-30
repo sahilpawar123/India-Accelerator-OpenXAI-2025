@@ -119,10 +119,27 @@ export default function Home() {
       nextDrinkTime.setHours(wakeTime, 0, 0, 0);
       nextDrinkTime.setMinutes(nextDrinkTime.getMinutes() + (intervalsPassed + 1) * intervalMinutes);
       const diff = nextDrinkTime.getTime() - now.getTime();
-      if (diff <= 0 || waterIntake >= goal) {
+      
+      if (waterIntake >= goal) {
         setCountdown("Done!");
         return;
       }
+
+      if (diff <= 1000 && diff > 0) {
+        toast("💧 Time for your next glass of water!", {
+          icon: '💧',
+          style: {
+            background: '#334155',
+            color: '#ffffff',
+          },
+        });
+      }
+
+      if (diff <= 0) {
+        setCountdown("00:00");
+        return;
+      }
+
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
@@ -134,24 +151,6 @@ export default function Home() {
     }, 1000);
     return () => clearInterval(timer);
   }, [goal, wakeTime, waterIntake]);
-
-  useEffect(() => {
-    const reminderInterval = 30 * 60 * 1000; // 30 minutes
-    
-    const reminder = setInterval(() => {
-      if (waterIntake < goal) {
-        toast("💧 Time for a water break!", {
-          icon: '💧',
-          style: {
-            background: '#334155', // slate-700
-            color: '#ffffff',
-          },
-        });
-      }
-    }, reminderInterval);
-
-    return () => clearInterval(reminder);
-  }, [waterIntake, goal]);
 
   const getAiNudge = async (currentIntake: number) => {
     setIsLoading(true);
@@ -204,7 +203,7 @@ export default function Home() {
 
   return (
     <>
-      <main className="flex items-center justify-center min-h-screen bg-slate-900 text-white p-4 overflow-hidden">
+     <main className="flex items-center justify-center min-h-screen text-white p-4 overflow-hidden">
         {isGoalComplete && <Confetti />}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

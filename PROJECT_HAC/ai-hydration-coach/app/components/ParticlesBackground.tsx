@@ -15,54 +15,49 @@ export default function ParticlesBackground() {
     });
   }, []);
 
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log(container);
-  };
+  const particlesLoaded = async (container?: Container) => {};
 
   const options: ISourceOptions = useMemo(
     () => ({
       preset: "stars",
       background: {
         color: {
-          value: "#0f172a", // slate-900
+          value: "#000000", // This can be any color
         },
+        opacity: 0, // This makes the canvas transparent
       },
       particles: {
         number: {
           value: 80,
           density: {
             enable: true,
-            value_area: 800, // This property is correct in the preset
           },
         },
         color: {
           value: "#ffffff",
         },
-        shape: {
-          type: "circle",
-        },
         opacity: {
           value: 0.5,
         },
         size: {
-          value: { min: 1, max: 2 }, // Updated size format
+          value: { min: 1, max: 2 },
         },
         move: {
           enable: true,
           speed: 0.5,
           direction: "none",
-          outModes: { // Renamed from out_mode
+          outModes: {
             default: "out",
           },
         },
       },
       interactivity: {
         events: {
-          onHover: { // Renamed from onhover
+          onHover: {
             enable: true,
             mode: "repulse",
           },
-          onClick: { // Renamed from onclick
+          onClick: {
             enable: true,
             mode: "push",
           },
