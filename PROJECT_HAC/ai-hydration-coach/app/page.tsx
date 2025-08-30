@@ -5,6 +5,7 @@ import Confetti from 'react-confetti';
 import Settings from './components/Settings';
 import WaterBottle from './components/WaterBottle';
 import Image from 'next/image';
+import toast from "react-hot-toast";
 
 const BADGES = {
   FIRST_SPLASH: { name: "First Splash", emoji: "💧", description: "First day complete!" },
@@ -35,12 +36,6 @@ export default function Home() {
   const [lastCompletedDate, setLastCompletedDate] = useState<string | null>(null);
   const [countdown, setCountdown] = useState("00:00");
   const [activeView, setActiveView] = useState('home');
-
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-  }, []);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -107,9 +102,14 @@ export default function Home() {
     const timer = setInterval(() => {
       const now = new Date();
       const currentHour = now.getHours();
-      if (goal <= 0) { setCountdown("Set a goal!"); return; }
-      if (currentHour < wakeTime) { setCountdown("Not yet..."); return; }
-
+      if (goal <= 0) {
+        setCountdown("Set a goal!");
+        return;
+      }
+      if (currentHour < wakeTime) {
+        setCountdown("Not yet...");
+        return;
+      }
       const wakingHours = 16;
       const drinksNeeded = Math.ceil(goal / 250);
       const intervalMinutes = drinksNeeded > 0 ? (wakingHours * 60) / drinksNeeded : Infinity;
@@ -119,20 +119,13 @@ export default function Home() {
       nextDrinkTime.setHours(wakeTime, 0, 0, 0);
       nextDrinkTime.setMinutes(nextDrinkTime.getMinutes() + (intervalsPassed + 1) * intervalMinutes);
       const diff = nextDrinkTime.getTime() - now.getTime();
-      
       if (diff <= 0 || waterIntake >= goal) {
         setCountdown("Done!");
         return;
       }
-      
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
-      
-      if (hours === 0 && minutes === 0 && seconds === 0) {
-        sendNotification();
-      }
-
       if (hours > 0) {
         setCountdown(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
       } else {
@@ -141,6 +134,24 @@ export default function Home() {
     }, 1000);
     return () => clearInterval(timer);
   }, [goal, wakeTime, waterIntake]);
+
+  useEffect(() => {
+    const reminderInterval = 30 * 60 * 1000; // 30 minutes
+    
+    const reminder = setInterval(() => {
+      if (waterIntake < goal) {
+        toast("💧 Time for a water break!", {
+          icon: '💧',
+          style: {
+            background: '#334155', // slate-700
+            color: '#ffffff',
+          },
+        });
+      }
+    }, reminderInterval);
+
+    return () => clearInterval(reminder);
+  }, [waterIntake, goal]);
 
   const getAiNudge = async (currentIntake: number) => {
     setIsLoading(true);
@@ -153,24 +164,11 @@ export default function Home() {
       });
       const data = await response.json();
       setAiNudge(data.message);
-      return data.message;
     } catch (error) {
       console.error("Failed to fetch AI nudge:", error);
       setAiNudge("Could not get a nudge. Keep going!");
-      return "Time for a drink!";
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const sendNotification = async () => {
-    if ("Notification" in window && Notification.permission === "granted") {
-      const nudgeText = await getAiNudge(waterIntake);
-      new Notification("💧 Time to Hydrate!", {
-        body: nudgeText,
-        icon: "/logo.png",
-      });
-    }
+    setIsLoading(false);
   };
 
   const addWater = (ml: number) => {
