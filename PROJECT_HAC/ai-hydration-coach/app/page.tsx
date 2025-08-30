@@ -5,7 +5,6 @@ import Confetti from 'react-confetti';
 import Settings from './components/Settings';
 import WaterBottle from './components/WaterBottle';
 import Image from 'next/image';
-import toast from "react-hot-toast";
 
 const BADGES = {
   FIRST_SPLASH: { name: "First Splash", emoji: "💧", description: "First day complete!" },
@@ -36,11 +35,22 @@ export default function Home() {
   const [lastCompletedDate, setLastCompletedDate] = useState<string | null>(null);
   const [countdown, setCountdown] = useState("00:00");
   const [activeView, setActiveView] = useState('home');
+  const [notificationPermission, setNotificationPermission] = useState("");
 
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker registered.'))
+        .catch(error => console.error('Service Worker registration failed:', error));
+    }
+  }, []);
+  
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     const savedLastDate = localStorage.getItem('lastCompletedDate');
-
     const savedGoal = localStorage.getItem('dailyGoal');
     const savedPoints = localStorage.getItem('userPoints');
     const savedWakeTime = localStorage.getItem('wakeTime');
@@ -56,7 +66,6 @@ export default function Home() {
 
     if (savedLastDate !== today) {
       setWaterIntake(0);
-      localStorage.setItem('waterIntake', '0');
     } else {
       const savedIntake = localStorage.getItem('waterIntake');
       if (savedIntake) setWaterIntake(JSON.parse(savedIntake));
@@ -77,39 +86,29 @@ export default function Home() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    
     if (goal > 0 && waterIntake >= goal && lastCompletedDate !== today) {
       setIsGoalComplete(true);
-      
       const newStreak = streak + 1;
       setStreak(newStreak);
       setPoints(prevPoints => prevPoints + 100 + (newStreak * 10));
       setLastCompletedDate(today);
-
       let newBadges = [...badges];
-      if (newStreak === 1 && !badges.includes("FIRST_SPLASH")) newBadges.push("FIRST_SPLASH");
-      if (newStreak >= 7 && !badges.includes("HYDRATION_HERO")) newBadges.push("HYDRATION_HERO");
-      if (newStreak >= 30 && !badges.includes("AQUA_MASTER")) newBadges.push("AQUA_MASTER");
+      if (newStreak === 1) newBadges.push("FIRST_SPLASH");
+      if (newStreak >= 7) newBadges.push("HYDRATION_HERO");
+      if (newStreak >= 30) newBadges.push("AQUA_MASTER");
       setBadges(newBadges);
-
       setGoal(prevGoal => prevGoal + 250);
-
       setTimeout(() => setIsGoalComplete(false), 8000);
     }
   }, [waterIntake, goal, lastCompletedDate, streak, badges, points]);
 
+  // This effect now correctly handles both the countdown and the notification
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       const currentHour = now.getHours();
-      if (goal <= 0) {
-        setCountdown("Set a goal!");
-        return;
-      }
-      if (currentHour < wakeTime) {
-        setCountdown("Not yet...");
-        return;
-      }
+      if (goal <= 0) { setCountdown("Set a goal!"); return; }
+      if (currentHour < wakeTime) { setCountdown("Not yet..."); return; }
       const wakingHours = 16;
       const drinksNeeded = Math.ceil(goal / 250);
       const intervalMinutes = drinksNeeded > 0 ? (wakingHours * 60) / drinksNeeded : Infinity;
@@ -124,15 +123,10 @@ export default function Home() {
         setCountdown("Done!");
         return;
       }
-
-      if (diff <= 1000 && diff > 0) {
-        toast("💧 Time for your next glass of water!", {
-          icon: '💧',
-          style: {
-            background: '#334155',
-            color: '#ffffff',
-          },
-        });
+      
+      // This is the restored logic to trigger the notification
+      if (diff <= 1000 && diff > 0 && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ action: 'showNotification' });
       }
 
       if (diff <= 0) {
@@ -183,7 +177,6 @@ export default function Home() {
 
   const handleDailyReset = () => {
     setWaterIntake(0);
-    localStorage.setItem('waterIntake', '0');
     setAiNudge("Progress reset for the day! Let's get started.");
   };
 
@@ -198,12 +191,23 @@ export default function Home() {
     setShowSettings(false);
     setAiNudge("Everything has been reset. Ready for a new start!");
   };
+  
+  const requestNotificationPermission = () => {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(permission => {
+        setNotificationPermission(permission);
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+        }
+      });
+    }
+  };
 
   const percentage = goal > 0 ? Math.min((waterIntake / goal) * 100, 100) : 0;
 
   return (
     <>
-     <main className="flex items-center justify-center min-h-screen text-white p-4 overflow-hidden">
+      <main className="flex items-center justify-center min-h-screen p-4 overflow-hidden">
         {isGoalComplete && <Confetti />}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -281,7 +285,7 @@ export default function Home() {
         </motion.div>
       </main>
       <AnimatePresence>
-        {showSettings && (<Settings currentGoal={goal} currentWakeTime={wakeTime} onClose={() => setShowSettings(false)} onSave={handleSaveSettings} onHardReset={handleHardReset} />)}
+        {showSettings && (<Settings currentGoal={goal} currentWakeTime={wakeTime} onClose={() => setShowSettings(false)} onSave={handleSaveSettings} onHardReset={handleHardReset} notificationPermission={notificationPermission} onRequestPermission={requestNotificationPermission} />)}
       </AnimatePresence>
     </>
   );

@@ -15,52 +15,27 @@ export default function ParticlesBackground() {
     });
   }, []);
 
-  const particlesLoaded = async (container?: Container) => {};
-
   const options: ISourceOptions = useMemo(
     () => ({
       preset: "stars",
       background: {
-        color: {
-          value: "#000000", // This can be any color
-        },
-        opacity: 0, // This makes the canvas transparent
+        opacity: 0, // Makes the canvas transparent
       },
       particles: {
-        number: {
-          value: 80,
-          density: {
-            enable: true,
-          },
-        },
-        color: {
-          value: "#ffffff",
-        },
-        opacity: {
-          value: 0.5,
-        },
-        size: {
-          value: { min: 1, max: 2 },
-        },
+        number: { value: 80 },
+        color: { value: "#ffffff" },
+        opacity: { value: 0.5 },
+        size: { value: { min: 1, max: 2 } },
         move: {
           enable: true,
           speed: 0.5,
-          direction: "none",
-          outModes: {
-            default: "out",
-          },
+          outModes: { default: "out" },
         },
       },
       interactivity: {
         events: {
-          onHover: {
-            enable: true,
-            mode: "repulse",
-          },
-          onClick: {
-            enable: true,
-            mode: "push",
-          },
+          onHover: { enable: true, mode: "repulse" },
+          onClick: { enable: true, mode: "push" },
         },
       },
     }),
@@ -68,14 +43,7 @@ export default function ParticlesBackground() {
   );
 
   if (init) {
-    return (
-      <Particles
-        id="tsparticles"
-        particlesLoaded={particlesLoaded}
-        options={options}
-      />
-    );
+    return <Particles id="tsparticles" options={options} />;
   }
-
   return <></>;
 }
