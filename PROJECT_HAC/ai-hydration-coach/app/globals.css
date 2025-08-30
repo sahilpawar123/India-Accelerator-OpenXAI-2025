@@ -1,2 +1,8 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.react-clock__hand {
+  background-color: #94a3b8 !important;
+  border: 1px solid #94a3b8 !important;
+}

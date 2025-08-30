@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans"; // Corrected import
 import "./globals.css";
 import ParticlesBackground from "./components/ParticlesBackground";
-
-const inter = Inter({ subsets: ["latin"] });
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "AI Hydration Coach",
@@ -17,7 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-900 text-white`}>
+      <body className={`${GeistSans.variable} antialiased bg-slate-900 text-white`}>
+        <Toaster position="top-center" />
         <ParticlesBackground />
         <div className="relative z-10">{children}</div>
       </body>
