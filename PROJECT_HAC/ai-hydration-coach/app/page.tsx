@@ -5,6 +5,7 @@ import Confetti from 'react-confetti';
 import Settings from './components/Settings';
 import WaterBottle from './components/WaterBottle';
 import Image from 'next/image';
+import toast from "react-hot-toast";
 
 const BADGES = {
   FIRST_SPLASH: { name: "First Splash", emoji: "💧", description: "First day complete!" },
@@ -177,6 +178,7 @@ export default function Home() {
 
   const handleDailyReset = () => {
     setWaterIntake(0);
+    localStorage.setItem('waterIntake', '0');
     setAiNudge("Progress reset for the day! Let's get started.");
   };
 
@@ -207,7 +209,7 @@ export default function Home() {
 
   return (
     <>
-      <main className="flex items-center justify-center min-h-screen p-4 overflow-hidden">
+      <main className="flex items-center justify-center min-h-screen text-white p-4 overflow-hidden">
         {isGoalComplete && <Confetti />}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -236,10 +238,20 @@ export default function Home() {
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => addWater(250)} className="bg-cyan-500 text-white font-semibold px-5 py-2 rounded-lg shadow-lg" disabled={isLoading}>+250 ml</motion.button>
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => addWater(500)} className="bg-teal-500 text-white font-semibold px-5 py-2 rounded-lg shadow-lg" disabled={isLoading}>+500 ml</motion.button>
                   </div>
-                  <div className="mt-6 p-4 bg-slate-900/50 border border-slate-700 rounded-lg min-h-[90px] flex items-center justify-center">
+
+                  {/* --- ANIMATED AI NUDGE CONTAINER --- */}
+                  <div className="mt-6 p-5 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl shadow-lg min-h-[100px] flex items-center justify-center relative overflow-hidden
+                              border-2 border-transparent animate-border-pulse"> {/* Added animate-border-pulse */}
                     <AnimatePresence mode="wait">
-                      <motion.p key={aiNudge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }} className="text-cyan-200 italic">
-                        {isLoading ? "Getting a smart tip..." : `"${aiNudge}"`}
+                      <motion.p
+                        key={aiNudge}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.4 }}
+                        className="text-cyan-100 italic text-lg leading-relaxed text-center px-2"
+                      >
+                        {isLoading ? "✨ Getting a smart tip..." : `💡 ${aiNudge}`}
                       </motion.p>
                     </AnimatePresence>
                   </div>
@@ -278,9 +290,27 @@ export default function Home() {
             </AnimatePresence>
           </div>
 
-          <div className="border-t border-slate-700 pt-4 flex justify-around">
-            <button onClick={() => setActiveView('home')} className={`font-semibold transition text-lg ${activeView === 'home' ? 'text-cyan-400' : 'text-slate-400 hover:text-white'}`}>Home</button>
-            <button onClick={() => setActiveView('achievements')} className={`font-semibold transition text-lg ${activeView === 'achievements' ? 'text-cyan-400' : 'text-slate-400 hover:text-white'}`}>Achievements</button>
+          <div className="border-t border-slate-700 pt-4 flex justify-around gap-4">
+            <button
+              onClick={() => setActiveView('home')}
+              className={`px-4 py-2 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                activeView === 'home'
+                  ? 'bg-cyan-600 text-white shadow-lg'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
+              }`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => setActiveView('achievements')}
+              className={`px-4 py-2 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                activeView === 'achievements'
+                  ? 'bg-cyan-600 text-white shadow-lg'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
+              }`}
+            >
+              Achievements
+            </button>
           </div>
         </motion.div>
       </main>
