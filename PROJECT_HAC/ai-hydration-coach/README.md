@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+💧 AI Hydration Coach
+🎥 Watch the Demo Video Here
+Project Description
+AI Hydration Coach is an intelligent web application designed to help users achieve their daily hydration goals. It goes beyond simple tracking by providing personalized, AI-generated nudges, a rewarding gamification system with points and badges, and a smart timer to make building healthy habits easy and engaging.
 
-## Getting Started
+The Problem it Solves
+Many people struggle to stay properly hydrated, often forgetting to drink water throughout their busy day. Standard reminder apps are generic and fail to keep users motivated over the long term. AI Hydration Coach solves this by providing a personalized and gamified experience that actively encourages users to meet their goals, adapting its advice to their progress, schedule, and even real-world conditions like the weather.
 
-First, run the development server:
+Features
+AI-Powered Nudges: Connects to a local Ollama model (Llama 3) to generate smart, context-aware reminders based on the user's progress, the time of day, and even the local weather.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Dynamic UI: A sleek, modern, dark-themed interface built with Next.js and Tailwind CSS, featuring smooth animations from Framer Motion.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Gamification: Rewards users with points for completing their daily goals and tracks their multi-day streak to encourage consistency. It also includes unlockable badges for milestones.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Personalization: A settings panel allows users to set their own daily water goal and wake-up time.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Smart Timer: A personalized countdown timer calculates the optimal time for the user's next drink based on their goal and waking hours.
 
-## Learn More
+Data Persistence: Uses the browser's localStorage to save all user progress, goals, points, and streaks, so the data is there when they return.
 
-To learn more about Next.js, take a look at the following resources:
+Native Notifications: Uses a Service Worker to send desktop notifications that work even when the browser is in the background.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Animated Background: A subtle, interactive particle background to create a more immersive experience.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tech Stack
+Framework: Next.js (App Router)
 
-## Deploy on Vercel
+Styling: Tailwind CSS
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Animations: Framer Motion
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+AI Model: Ollama with Llama 3
+
+Notifications: Browser Notification API & Service Worker
+
+Additional Libraries: react-confetti, @tsparticles/react
+
+Challenges Faced
+Complex State Management: A key challenge was ensuring daily data like streaks and goal completions worked reliably with the browser's localStorage. We solved a critical bug in the daily reset logic to make the gamification features stable and consistent.
+
+AI Integration: Integrating a local LLM (Ollama) with Next.js was a major challenge. This required building API routes to connect the frontend to the local AI and carefully designing prompts to get intelligent and motivating responses.
+
+Background Notifications: Implementing true desktop notifications that work even when the browser is in the background required a deep dive into the browser's Service Worker and Notification APIs, including handling user permissions correctly.
+
+How to Run Locally
+Clone the repository.
+
+Install dependencies: npm install
+
+Set up your .env.local file with your OPENWEATHER_API_KEY.
+
+Make sure your local Ollama server is running.
+
+Start the development server: npm run dev
